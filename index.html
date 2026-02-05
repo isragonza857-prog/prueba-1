@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buzón de Amor</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background-color: #fff0f3;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        .container {
+            width: 100%;
+            max-width: 400px;
+        }
+        .carta {
+            background: white;
+            padding: 20px;
+            margin: 15px 0;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            border-left: 6px solid #ff4d6d;
+        }
+        .bloqueada {
+            background: #f0f0f0;
+            border-left-color: #adb5bd;
+            color: #666;
+        }
+        .btn-notif {
+            background: #ff4d6d;
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            border-radius: 25px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1 style="color: #c9184a;">💌 Mis Mensajes</h1>
+    <button class="btn-notif" onclick="activar()">🔔 Activar Notificaciones</button>
+    
+    <div id="muro" class="container"></div>
+
+    <script>
+        // Configura: { mensaje, minutos para esperar }
+        const mensajes = [
+            { txt: "¡Te amo desde el primer segundo! ❤️", espera: 0 },
+            { txt: "Esta frase se desbloqueó tras 1 minuto. 😍", espera: 1 },
+            { txt: "Eres lo mejor que me ha pasado. 🌹", espera: 5 },
+            { txt: "Mañana tendrás un nuevo mensaje aquí. ✨", espera: 1440 }
+        ];
+
+        function check() {
+            const ahora = Date.now();
+            let inicio = localStorage.getItem('start');
+            if (!inicio) {
+                inicio = ahora;
+                localStorage.setItem('start', inicio);
+            }
+
+            const muro = document.getElementById('muro');
+            muro.innerHTML = '';
+
+            mensajes.forEach((m, i) => {
+                const tiempoDesbloqueo = parseInt(inicio) + (m.espera * 60000);
+                const disponible = ahora >= tiempoDesbloqueo;
+                const div = document.createElement('div');
+                div.className = disponible ? 'carta' : 'carta bloqueada';
+
+                if (disponible) {
+                    div.innerHTML = <p>${m.txt}</p>;
+                    if (!localStorage.getItem('n_'+i) && m.espera > 0) {
+                        new Notification("¡Nuevo mensaje de amor! 💌");
+                        localStorage.setItem('n_'+i, 'true');
+                    }
+                } else {
+                    const diff = Math.ceil((tiempoDesbloqueo - ahora) / 1000);
+                    div.innerHTML = <p>🔒 Bloqueado... (${diff} seg restantes)</p>;
+                }
+                muro.appendChild(div);
+            });
+        }
+
+        function activar() {
+            Notification.requestPermission().then(p => { if(p === 'granted') alert('Avisos activados'); });
+        }
+
+        setInterval(check, 1000);
+        check();
+    </script>
+</body>
+</html>
