@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Buzón de Amor 💌</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/833/833472.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/833/833472.png">
+
+    <style>
+        :root { --rosa: #ff4d6d; --fondo: #fff0f3; --texto: #590d22; }
+        
+        body { 
+            background-color: var(--fondo); 
+            font-family: 'Segoe UI', Tahoma, sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            color: var(--texto); 
+            overflow-x: hidden;
+        }
+
+        h1 { margin: 20px 0; font-size: 1.6rem; text-align: center; z-index: 2; }
+
+        /* Botón de Notificaciones */
+        .btn-notif { 
+            background: var(--rosa); 
+            color: white; 
+            border: none; 
+            padding: 12px 25px; 
+            border-radius: 25px; 
+            font-weight: bold; 
+            margin-bottom: 25px; 
+            cursor: pointer; 
+            z-index: 2;
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
+        }
+
+        #contenedor { width: 100%; max-width: 400px; z-index: 2; }
+
+        .carta { 
+            background: white; 
+            padding: 20px; 
+            margin-bottom: 15px; 
+            border-radius: 20px; 
+            box-shadow: 0 5px 15px rgba(0,0,0,0.05); 
+            border-left: 8px solid var(--rosa); 
+            animation: slideUp 0.6s ease forwards;
+        }
+
+        .bloqueada { 
+            background: rgba(255, 255, 255, 0.6); 
+            border-left-color: #adb5bd; 
+            opacity: 0.8; 
+            filter: grayscale(0.5);
+        }
+
+        .tiempo-tag { 
+            display: block; 
+            font-size: 0.75rem; 
+            color: var(--rosa); 
+            font-weight: bold; 
+            margin-bottom: 8px; 
+            text-transform: uppercase; 
+        }
+
+        /* Corazones flotantes de fondo */
+        .corazon-bg {
+            position: fixed;
+            top: -10%;
+            font-size: 20px;
+            user-select: none;
+            pointer-events: none;
+            animation: fall linear forwards;
+            z-index: 1;
+        }
+
+        @keyframes fall {
+            to { transform: translateY(110vh) rotate(360deg); }
+        }
+
+        @keyframes slideUp {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
+</head>
+<body>
+
+    <h1>💌 Nuestro Buzón Mágico</h1>
+    <button class="btn-notif" id="btnActivar" onclick="activarNotificaciones()">🔔 Activar Notificaciones</button>
+    
+    <div id="contenedor"></div>
+
+    <script>
+        // --- TUS 14 FRASES (Ajustadas a ciclo de 12 horas) ---
+        const frases = [
+            { id: 1, texto: "❤️Eres la razón de mi sonreir❤️.", horas: 0 },
+            { id: 2, texto: "Hoy te veias demasiado linda", horas: 12 },
+            { id: 3, texto: "✨Me gusta mucho la energía que transmites✨", horas: 24 },
+            { id: 4, texto: "Tu amor es mi parte favorita de la vida 🌹", horas: 36 },
+            { id: 5, texto: "¡Sorpresa! Otro mensaje para decirte que te quiero ✨", horas: 48 },
+            { id: 6, texto: "Cada segundo que pasa me gustas más 💖", horas: 60  },
+            { id: 7, texto: "Eres mi persona favorita en todo el universo 🌎", horas: 72 },
+            { id: 8, texto: "Ya cuento las horas para darte un abrazo 🤗", horas: 84 },
+            { id: 9, texto: "Gracias por hacerme el hombre más feliz 🎁", horas: 96 },
+            { id: 10, texto: "Me encantas de una forma inexplicable 😍", horas: 108 },
+            { id: 11, texto: "Eres mi complemento perfecto en todo 👩‍❤️‍👨", horas: 120 },
+            { id: 12, texto: "Mi corazón late más fuerte por ti 🏠", horas: 132 },
+            { id: 13, texto: "Ya casi termina este ciclo de mensajes... 😴", horas: 144 },
+            { id: 14, texto: "¡Te amo infinitamente! Espera el próximo ciclo 🌙", horas: 156}
+        ];
+
+        const HORAS_REINICIO = 12; // REINICIO CADA 12 HORAS
+
+        function activarNotificaciones() {
+            Notification.requestPermission().then(p => { 
+                if(p === "granted") {
+                    alert("¡Activado!");
+                    document.getElementById('btnActivar').style.display = 'none';
+                }
+            });
+        }
+
+        function crearCorazon() {
+            const c = document.createElement('div');
+            c.className = 'corazon-bg';
+            c.innerHTML = '❤️';
+            c.style.left = Math.random() * 100 + 'vw';
+            c.style.animationDuration = Math.random() * 3 + 2 + 's';
+            c.style.opacity = Math.random();
+            document.body.appendChild(c);
+            setTimeout(() => c.remove(), 5000);
+        }
+        setInterval(crearCorazon, 500);
+
+        function actualizar() {
+            const contenedor = document.getElementById('contenedor');
+            const ahora = Date.now();
+            
+            let inicio = localStorage.getItem('buzon_final_12h');
+            if (!inicio || (ahora - parseInt(inicio)) > (HORAS_REINICIO * 3600000)) {
+                inicio = ahora;
+                localStorage.setItem('buzon_final_12h', inicio);
+                frases.forEach(f => localStorage.removeItem('n_' + f.id));
+            }
+            
+            let html = '';
+            frases.forEach(f => {
+                const millisDesbloqueo = parseInt(inicio) + (f.horas * 3600000);
+                const disponible = ahora >= millisDesbloqueo;
+
+                if (disponible) {
+                    html += `<div class="carta">
+                                <span class="tiempo-tag">✨ Desbloqueado</span>
+                                <p>${f.texto}</p>
+                             </div>`;
+                    
+                    if (!localStorage.getItem('n_' + f.id) && f.horas > 0) {
+                        if (Notification.permission === "granted") {
+                            new Notification("¡Nueva Carta! 💌", { body: "Tienes un nuevo mensaje de amor..." });
+                        }
+                        localStorage.setItem('n_' + f.id, "true");
+                    }
+                } else {
+                    const resta = millisDesbloqueo - ahora;
+                    const h = Math.floor(resta / 3600000);
+                    const m = Math.floor((resta % 3600000) / 60000);
+                    const s = Math.floor((resta % 60000) / 1000);
+                    html += `<div class="carta bloqueada">
+                                <span class="tiempo-tag">🔒 Disponible en: ${h}h ${m}m ${s}s</span>
+                                <p><i>Mensaje sorpresa preparado...</i></p>
+                             </div>`;
+                }
+            });
+            contenedor.innerHTML = html;
+        }
+
+        if (Notification.permission === "granted") document.getElementById('btnActivar').style.display = 'none';
+        setInterval(actualizar, 1000);
+        actualizar();
+    </script>
+</body>
+</html>
