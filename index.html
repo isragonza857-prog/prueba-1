@@ -3,141 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Para Mi Amor 💌</title>
+    <title>Buzón de Amor 💌</title>
 
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="mobile-web-app-capable" content="yes">
-    
     <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/833/833472.png">
     <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/833/833472.png">
 
     <style>
         :root {
-            --rosa-fuerte: #ff4d6d;
-            --rosa-claro: #fff0f3;
+            --rosa: #ff4d6d;
+            --fondo: #fff0f3;
             --texto: #590d22;
         }
 
+        /* Fondo Animado de Corazones */
         body {
-            background-color: var(--rosa-claro);
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--fondo);
+            font-family: 'Segoe UI', sans-serif;
             margin: 0;
             padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
             color: var(--texto);
+            overflow-x: hidden;
+            min-height: 100vh;
         }
 
-        h1 { margin-top: 20px; font-size: 1.8rem; }
-
-        #contenedor {
-            width: 100%;
-            max-width: 400px;
-            margin-top: 20px;
+        .corazon-bg {
+            position: fixed;
+            top: -10%;
+            color: rgba(255, 77, 109, 0.2);
+            font-size: 24px;
+            user-select: none;
+            z-index: -1;
+            animation: lluvia linear infinite;
         }
 
-        .carta {
-            background: white;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-radius: 20px;
-            box-shadow: 0 10px 20px rgba(255, 77, 109, 0.15);
-            border-left: 8px solid var(--rosa-fuerte);
-            transition: all 0.5s ease;
+        @keyframes lluvia {
+            0% { transform: translateY(0) rotate(0deg); opacity: 0; }
+            10% { opacity: 1; }
+            90% { opacity: 1; }
+            100% { transform: translateY(110vh) rotate(360deg); opacity: 0; }
         }
 
-        .bloqueada {
-            background: #f8f9fa;
-            border-left-color: #adb5bd;
-            filter: grayscale(1);
-            opacity: 0.7;
+        h1 { margin: 20px 0; font-size: 1.8rem; text-align: center; text-shadow: 2px 2px 4px rgba(0,0,0,0.05); }
+
+        .btn-notif { 
+            background: var(--rosa); 
+            color: white; 
+            border: none; 
+            padding: 12px 25px; 
+            border-radius: 25px; 
+            font-weight: bold; 
+            margin-bottom: 25px; 
+            cursor: pointer; 
+            box-shadow: 0 4px 15px rgba(255, 77, 109, 0.3);
+            z-index: 10;
         }
 
-        .tiempo {
-            display: block;
-            font-size: 0.75rem;
-            color: var(--rosa-fuerte);
-            margin-bottom: 10px;
-            font-weight: bold;
+        #contenedor { width: 100%; max-width: 400px; z-index: 5; }
+
+        .carta { 
+            background: rgba(255, 255, 255, 0.9); 
+            backdrop-filter: blur(5px);
+            padding: 20px; 
+            margin-bottom: 15px; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 20px rgba(0,0,0,0.05); 
+            border-left: 8px solid var(--rosa); 
+            animation: entrada 0.6s ease-out;
         }
 
-        .mensaje {
-            font-size: 1.1rem;
-            line-height: 1.4;
+        .bloqueada { 
+            background: rgba(240, 240, 240, 0.8); 
+            border-left-color: #adb5bd; 
+            opacity: 0.8; 
         }
 
-        .candado {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            display: block;
+        .tiempo-tag { 
+            display: block; 
+            font-size: 0.75rem; 
+            color: var(--rosa); 
+            font-weight: bold; 
+            margin-bottom: 8px; 
+            text-transform: uppercase; 
+            letter-spacing: 1px;
+        }
+
+        @keyframes entrada {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
         }
     </style>
 </head>
 <body>
 
-    <h1>💌 Mi Regalo Para Ti</h1>
+    <h1>💌 Nuestro Buzón Mágico</h1>
+    <button class="btn-notif" id="btnActivar" onclick="activarNotificaciones()">🔔 Activar Notificaciones</button>
     
-    <div id="contenedor">
-        </div>
+    <div id="contenedor"></div>
 
     <script>
-        // --- CONFIGURA TUS FRASES AQUÍ ---
-        // minutos: 0 significa que se ve apenas abre la app.
-        // minutos: 5 significa que se verá 5 minutos después de abrirla por primera vez.
+        // --- 1. GENERAR CORAZONES DE FONDO ---
+        function crearCorazones() {
+            const num = 15;
+            for(let i=0; i<num; i++) {
+                let corazon = document.createElement('div');
+                corazon.className = 'corazon-bg';
+                corazon.innerHTML = '❤️';
+                corazon.style.left = Math.random() * 100 + 'vw';
+                corazon.style.animationDuration = (Math.random() * 3 + 4) + 's';
+                corazon.style.animationDelay = (Math.random() * 5) + 's';
+                corazon.style.fontSize = (Math.random() * 20 + 15) + 'px';
+                document.body.appendChild(corazon);
+            }
+        }
+        crearCorazones();
+
+        // --- 2. CONFIGURACIÓN DE FRASES ---
         const frases = [
-            { id: 1, texto: "¡Bienvenida a tu buzón especial! ❤️ Eres lo mejor de mi vida.", minutos: 0 },
-            { id: 2, texto: "Me encantas cada día más... 😍", minutos: 2 },
-            { id: 3, texto: "Gracias por ser como eres. 🌹", minutos: 60 },
-            { id: 4, texto: "Un mensaje para mañana: ¡Te amo! ✨", minutos: 1440 }
+            { id: 1, texto: "¡Buenos días, amor de mi vida! ❤️", horas: 0 },
+            { id: 2, texto: "Pensando en ti desde el primer segundo 😍", horas: 0.5 },
+            { id: 3, texto: "Eres mi razón para sonreír 💋", horas: 1 },
+            { id: 4, texto: "Te amo más que ayer, pero menos que mañana 🌹", horas: 2 },
+            { id: 5, texto: "¡Eres increíble! No lo olvides nunca ✨", horas: 3 },
+            { id: 6, texto: "Mi corazón late por ti 💖", horas: 4 },
+            { id: 7, texto: "Eres mi pedacito de cielo 🌎", horas: 5 },
+            { id: 8, texto: "Cuento las horas para verte 🤗", horas: 6 },
+            { id: 9, texto: "Tengo un beso guardado para ti 🎁", horas: 7 },
+            { id: 10, texto: "Me haces la persona más feliz 😍", horas: 8 },
+            { id: 11, texto: "Gracias por cada momento juntos 👩‍❤️‍👨", horas: 9 },
+            { id: 12, texto: "Eres mi hogar 🏠", horas: 10 },
+            { id: 13, texto: "Descansa mucho, mi amor 😴", horas: 11 },
+            { id: 14, texto: "¡Te amo infinitamente! 🌙", horas: 11.5 }
         ];
 
-        function actualizarBuzon() {
+        const HORAS_REINICIO = 12; 
+
+        function activarNotificaciones() {
+            Notification.requestPermission().then(p => { 
+                if(p === "granted") {
+                    alert("¡Activado!");
+                    document.getElementById('btnActivar').style.display = 'none';
+                }
+            });
+        }
+
+        function actualizar() {
             const contenedor = document.getElementById('contenedor');
-            const ahora = new Date().getTime();
+            const ahora = Date.now();
             
-            // Guardamos el momento exacto en que abrió la app por primera vez
-            let tiempoInicio = localStorage.getItem('fecha_inicio');
-            if (!tiempoInicio) {
-                tiempoInicio = ahora;
-                localStorage.setItem('fecha_inicio', tiempoInicio);
+            let inicio = localStorage.getItem('buzon_final_12h');
+            if (!inicio || (ahora - parseInt(inicio)) > (HORAS_REINICIO * 3600000)) {
+                inicio = ahora;
+                localStorage.setItem('buzon_final_12h', inicio);
+                frases.forEach(f => localStorage.removeItem('n_' + f.id));
             }
             
             let html = '';
-
             frases.forEach(f => {
-                const tiempoDesbloqueo = parseInt(tiempoInicio) + (f.minutos * 60 * 1000);
-                const disponible = ahora >= tiempoDesbloqueo;
+                const millisDesbloqueo = parseInt(inicio) + (f.horas * 3600000);
+                const disponible = ahora >= millisDesbloqueo;
 
                 if (disponible) {
-                    html += `
-                        <div class="carta">
-                            <span class="tiempo">✨ DESBLOQUEADO</span>
-                            <div class="mensaje">${f.texto}</div>
-                        </div>
-                    `;
-                } else {
-                    const resta = tiempoDesbloqueo - ahora;
-                    const mins = Math.floor(resta / 60000);
-                    const segs = Math.floor((resta % 60000) / 1000);
-
-                    html += `
-                        <div class="carta bloqueada">
-                            <span class="candado">🔒</span>
-                            <span class="tiempo">Disponible en: ${mins}m ${segs}s</span>
-                            <div class="mensaje"><i>Mensaje sorpresa...</i></div>
-                        </div>
-                    `;
-                }
-            });
-
-            contenedor.innerHTML = html;
-        }
-
-        // Actualizar cada segundo para que el contador se mueva
-        setInterval(actualizarBuzon, 1000);
-        actualizarBuzon();
-    </script>
-</body>
-</html>
