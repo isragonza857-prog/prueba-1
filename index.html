@@ -2,98 +2,142 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Buzón de Amor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Para Mi Amor 💌</title>
+
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="mobile-web-app-capable" content="yes">
+    
+    <link rel="icon" href="https://cdn-icons-png.flaticon.com/512/833/833472.png">
+    <link rel="apple-touch-icon" href="https://cdn-icons-png.flaticon.com/512/833/833472.png">
+
     <style>
+        :root {
+            --rosa-fuerte: #ff4d6d;
+            --rosa-claro: #fff0f3;
+            --texto: #590d22;
+        }
+
         body {
-            font-family: 'Segoe UI', sans-serif;
-            background-color: #fff0f3;
+            background-color: var(--rosa-claro);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 20px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            padding: 20px;
+            color: var(--texto);
         }
-        .container {
+
+        h1 { margin-top: 20px; font-size: 1.8rem; }
+
+        #contenedor {
             width: 100%;
             max-width: 400px;
+            margin-top: 20px;
         }
+
         .carta {
             background: white;
             padding: 20px;
-            margin: 15px 0;
-            border-radius: 15px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-            border-left: 6px solid #ff4d6d;
+            margin-bottom: 20px;
+            border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(255, 77, 109, 0.15);
+            border-left: 8px solid var(--rosa-fuerte);
+            transition: all 0.5s ease;
         }
+
         .bloqueada {
-            background: #f0f0f0;
+            background: #f8f9fa;
             border-left-color: #adb5bd;
-            color: #666;
+            filter: grayscale(1);
+            opacity: 0.7;
         }
-        .btn-notif {
-            background: #ff4d6d;
-            color: white;
-            border: none;
-            padding: 12px 25px;
-            border-radius: 25px;
+
+        .tiempo {
+            display: block;
+            font-size: 0.75rem;
+            color: var(--rosa-fuerte);
+            margin-bottom: 10px;
             font-weight: bold;
-            cursor: pointer;
+        }
+
+        .mensaje {
+            font-size: 1.1rem;
+            line-height: 1.4;
+        }
+
+        .candado {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            display: block;
         }
     </style>
 </head>
 <body>
 
-    <h1 style="color: #c9184a;">💌 Mis Mensajes</h1>
-    <button class="btn-notif" onclick="activar()">🔔 Activar Notificaciones</button>
+    <h1>💌 Mi Regalo Para Ti</h1>
     
-    <div id="muro" class="container"></div>
+    <div id="contenedor">
+        </div>
 
     <script>
-        // Configura: { mensaje, minutos para esperar }
-        const mensajes = [
-            { txt: "¡Te amo desde el primer segundo! ❤️", espera: 0 },
-            { txt: "Esta frase se desbloqueó tras 1 minuto. 😍", espera: 1 },
-            { txt: "Eres lo mejor que me ha pasado. 🌹", espera: 5 },
-            { txt: "Mañana tendrás un nuevo mensaje aquí. ✨", espera: 1440 }
+        // --- CONFIGURA TUS FRASES AQUÍ ---
+        // minutos: 0 significa que se ve apenas abre la app.
+        // minutos: 5 significa que se verá 5 minutos después de abrirla por primera vez.
+        const frases = [
+            { id: 1, texto: "¡Bienvenida a tu buzón especial! ❤️ Eres lo mejor de mi vida.", minutos: 0 },
+            { id: 2, texto: "Me encantas cada día más... 😍", minutos: 2 },
+            { id: 3, texto: "Gracias por ser como eres. 🌹", minutos: 60 },
+            { id: 4, texto: "Un mensaje para mañana: ¡Te amo! ✨", minutos: 1440 }
         ];
 
-        function check() {
-            const ahora = Date.now();
-            let inicio = localStorage.getItem('start');
-            if (!inicio) {
-                inicio = ahora;
-                localStorage.setItem('start', inicio);
+        function actualizarBuzon() {
+            const contenedor = document.getElementById('contenedor');
+            const ahora = new Date().getTime();
+            
+            // Guardamos el momento exacto en que abrió la app por primera vez
+            let tiempoInicio = localStorage.getItem('fecha_inicio');
+            if (!tiempoInicio) {
+                tiempoInicio = ahora;
+                localStorage.setItem('fecha_inicio', tiempoInicio);
             }
+            
+            let html = '';
 
-            const muro = document.getElementById('muro');
-            muro.innerHTML = '';
-
-            mensajes.forEach((m, i) => {
-                const tiempoDesbloqueo = parseInt(inicio) + (m.espera * 60000);
+            frases.forEach(f => {
+                const tiempoDesbloqueo = parseInt(tiempoInicio) + (f.minutos * 60 * 1000);
                 const disponible = ahora >= tiempoDesbloqueo;
-                const div = document.createElement('div');
-                div.className = disponible ? 'carta' : 'carta bloqueada';
 
                 if (disponible) {
-                    div.innerHTML = <p>${m.txt}</p>;
-                    if (!localStorage.getItem('n_'+i) && m.espera > 0) {
-                        new Notification("¡Nuevo mensaje de amor! 💌");
-                        localStorage.setItem('n_'+i, 'true');
-                    }
+                    html += `
+                        <div class="carta">
+                            <span class="tiempo">✨ DESBLOQUEADO</span>
+                            <div class="mensaje">${f.texto}</div>
+                        </div>
+                    `;
                 } else {
-                    const diff = Math.ceil((tiempoDesbloqueo - ahora) / 1000);
-                    div.innerHTML = <p>🔒 Bloqueado... (${diff} seg restantes)</p>;
+                    const resta = tiempoDesbloqueo - ahora;
+                    const mins = Math.floor(resta / 60000);
+                    const segs = Math.floor((resta % 60000) / 1000);
+
+                    html += `
+                        <div class="carta bloqueada">
+                            <span class="candado">🔒</span>
+                            <span class="tiempo">Disponible en: ${mins}m ${segs}s</span>
+                            <div class="mensaje"><i>Mensaje sorpresa...</i></div>
+                        </div>
+                    `;
                 }
-                muro.appendChild(div);
             });
+
+            contenedor.innerHTML = html;
         }
 
-        function activar() {
-            Notification.requestPermission().then(p => { if(p === 'granted') alert('Avisos activados'); });
-        }
-
-        setInterval(check, 1000);
-        check();
+        // Actualizar cada segundo para que el contador se mueva
+        setInterval(actualizarBuzon, 1000);
+        actualizarBuzon();
     </script>
 </body>
 </html>
